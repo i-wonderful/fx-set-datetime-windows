@@ -6,7 +6,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import org.byby.jna.WindowSetDateTime;
+import org.byby.jna.WindowsUserAdmin;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,11 +38,22 @@ public class Controller {
 
     @FXML
     public void initialize() {
-        LocalDateTime now = LocalDateTime.now();
-        month.setText(String.valueOf(now.getMonthValue()));
-        day.setText(String.valueOf(now.getDayOfMonth()));
-        hour.setText(String.valueOf(now.getHour()));
-        minute.setText(String.valueOf(now.getMinute()));
+        if (WindowsUserAdmin.isUserWindowsAdmin()) {
+            LocalDateTime now = LocalDateTime.now();
+            month.setText(String.valueOf(now.getMonthValue()));
+            day.setText(String.valueOf(now.getDayOfMonth()));
+            hour.setText(String.valueOf(now.getHour()));
+            minute.setText(String.valueOf(now.getMinute()));
+        } else {
+            result.setText("Run as Administrator!");
+            result.setTextFill(Color.RED);
+            goButton.setDisable(true);
+            month.setDisable(true);
+            day.setDisable(true);
+            hour.setDisable(true);
+            minute.setDisable(true);
+            isSetDay.setDisable(true);
+        }
     }
 
     @FXML
@@ -62,14 +75,14 @@ public class Controller {
         short day = Short.parseShort(sDay);
         short month = Short.parseShort(sMonth);
 
-        new WindowSetDateTime().SetLocalTime((short) LocalDate.now().getYear(),
+        boolean success = new WindowSetDateTime().SetLocalTime((short) LocalDate.now().getYear(),
                 month,
                 day,
                 hour,
                 minute,
                 (short) 0);
 
-        result.setText("Success! Hour: " + sHour + " minute: " + sMinute);
+        result.setText(success ? "Success! Hour: " + sHour + " minute: " + sMinute : "Error set datetime");
     }
 
     @FXML
